@@ -1,0 +1,26 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Sat, 21 Sep 2019 13:51:09 +0200
+Subject: Mark old interfaces as deprecated
+
+They require unused arguments and do not return a checkable result
+---
+ utempter.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/utempter.h b/utempter.h
+index f1ceeef..66acd93 100644
+--- a/utempter.h
++++ b/utempter.h
+@@ -35,9 +35,9 @@ extern void utempter_set_helper (const char *pathname);
+ 
+ /* Old interface. */
+ 
+-extern void addToUtmp (const char *pty, const char *hostname, int master_fd);
+-extern void removeFromUtmp (void);
+-extern void removeLineFromUtmp (const char *pty, int master_fd);
++extern void addToUtmp (const char *pty, const char *hostname, int master_fd) __attribute__((__deprecated__));
++extern void removeFromUtmp (void) __attribute__((__deprecated__));
++extern void removeLineFromUtmp (const char *pty, int master_fd) __attribute__((__deprecated__));
+ 
+ #ifdef	__cplusplus
+ }

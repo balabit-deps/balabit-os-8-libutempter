@@ -1,0 +1,58 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Sat, 21 Sep 2019 14:06:21 +0200
+Subject: Validate given hostname
+
+Reject suspicious hostnames, e.g. containing \n or \r, to avoid faking utmp entries when using who.
+See #689562
+---
+ utempter.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/utempter.c b/utempter.c
+index b79af97..3670836 100644
+--- a/utempter.c
++++ b/utempter.c
+@@ -33,6 +33,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
+ #include <utmp.h>
++#include <ctype.h>
+ 
+ #ifdef __GLIBC__
+ # include <pty.h>
+@@ -104,6 +105,27 @@ validate_device(const char *device)
+ 	}
+ }
+ 
++static void validate_host(const char *host)
++{
++	if (!host)
++	{
++		return;
++	}
++
++	while (*host)
++	{
++		if (!isprint(*host))
++		{
++#ifdef  UTEMPTER_DEBUG
++			fprintf(stderr, "utempter: invalid character (%d) in hostname\n",
++				*host);
++#endif
++			exit(EXIT_FAILURE);
++		}
++		++host;
++	}
++}
++
+ static int
+ write_uwtmp_record(const char *user, const char *term, const char *host,
+ #ifdef __GLIBC__
+@@ -253,6 +275,7 @@ main(int argc, const char *argv[])
+ 	}
+ 
+ 	validate_device(device);
++	validate_host(host);
+ 
+ 	return write_uwtmp_record(pw->pw_name, device + DEV_PREFIX_LEN, host,
+ #ifdef __GLIBC__
